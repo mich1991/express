@@ -1,15 +1,32 @@
 var createError = require('http-errors');
+var cookieSession = require('cookie-session');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var config = require('./config')
+var mongoose = require('mongoose')
+
+// before routes
+mongoose.connect(config.db, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'))
+db.once('open', function () {
+  console.log('db connect');
+})
+
 
 var indexRouter = require('./routes/index');
+var adminRouter = require('./routes/admin');
 var newsRouter = require('./routes/news');
 var pollRouter = require('./routes/poll');
-var adminRouter = require('./routes/admin');
 
-
+// mongoDB atlas db adress in config.js
+// mongodb+srv://mich1991:<password>@learningcluster-iyh2k.mongodb.//net/<dbname>?retryWrites=true&w=majority
 var app = express();
 
 // view engine setup
@@ -21,6 +38,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieSession({
+  // cookie options in config.js
+  name: 'session',
+  keys: config.keySession,
+  maxAge: config.maxAgeSession//24h
+}))
 
 app.use(function (req, res, next) {
   // assign req.path to local variable as a "path"

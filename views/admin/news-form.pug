@@ -1,0 +1,17 @@
+extends ../layout
+
+block content
+    h1= title
+
+    form(method="post")
+        p
+            label Title
+            input(type="text" name= 'title')
+        p
+            label Description
+            textarea(name="description")
+        p   
+            input(type="submit" value='Save/Add')
+
+
+
